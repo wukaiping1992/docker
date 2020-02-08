@@ -24,3 +24,20 @@ sudo usermod-aG docker $USER #将当前用户加入docker组
 
 6.测试Docker是否安装正确
 docker run hello-world #启动一个基于hello-world镜像的容器
+
+7.删除docker安装包
+sudo yum remove docker-ce
+
+8.删除docker镜像
+sudo rm -rf /var/lib/docker
+
+9.镜像加速器
+在/etc/docker/deamon.json中写入如下配置
+{
+  "registry-mirrors":[
+    "http://hub-mirror.c.163.com"
+  ]
+}
+重启服务生效
+sudo systemctl deamon-reload
+sudo systemctl restart docker
