@@ -1,0 +1,26 @@
+1.系统要求：
+CE支持64位版本CentOS 7，并且要求内核版本不低于3.10。使用 uname -r 查询系统内核。
+
+2.卸载旧版本：
+sudo yum remove docker docker-common docker-selinux docker-engine
+
+3.使用yum安装
+sudo yum install docker-ce
+如果安装的是 centos7 minimal版本，执行安装提示“没有可用软件包”。这个时候需要安装必要的软件依赖以及更新增加docker-ce yum源。
+sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+4.启动
+sudo systemctl enable docker #设置开机启动
+sudo systemctl start docker #启动docker
+sudo systemctl restart docker #重启docker
+docker info #输出详细的docker信息
+
+5.建立docker用户组
+默认情况下。docker命令会通过Unix socket 与 Docker引擎通讯。而只有root用户和docker组的用户才能访问Docker引擎的Unix socket。
+需要使用docker的用户加入docker用户组
+sudo groupadd docker #建立docker组
+sudo usermod-aG docker $USER #将当前用户加入docker组
+
+6.测试Docker是否安装正确
+docker run hello-world #启动一个基于hello-world镜像的容器
