@@ -1,1 +1,87 @@
+1.从Docker镜像仓库获取镜像
+docker pull ubuntu:16.04
+
+2.启动容器中的bash并且进行交互式操作
+-it: 交互式操作终端
+--rm：容器退出后随之将其删除
+bash：放在镜像后的命令 表示有交互式Shell
+docker run -it --rm ubuntu:16.04 bash
+可用 exit 退出容器
+
+3.列出已经下载的镜像 包括 仓库名、标签、镜像ID、创建时间 以及 所占用的空间
+dokcer image ls
+docker images
+
+4.查看容器、镜像、数据卷所占用的空间
+docker system df
+
+5.显示仓库名、标签均为<none>的镜像（虚悬镜像）
+docker image ls -f dangling=true
+
+6.删除虚悬镜像
+docker image prune
+
+7.删除本地镜像 xxxx表示镜像短ID、镜像长ID、镜像名、镜像摘要
+docker image rm xxxx
+
+8.批量删除镜像
+删除所有的ubuntu镜像
+docker image rm ${docker image ls -q ubuntu}
+删除所有在ubuntu:16.04之前的镜像
+docker image rm $(docker image ls -q -f before=ubunt:16.04)
+
+9.新建并启动容器
+docker run ubuntu:16.04 /bin/echo 'Hello world'
+启动bash终端，允许用户进行交互
+docker run -t -i ubuntu：16.04 /bin/bash
+当利用docker run来创建容器，Docker在后台运行的标志操作包括：
+1.检查本地是否存在指定镜像，不存在则到公有仓库下载
+2.利用镜像创建并启动一个容器
+3.分配一个文件系统，并在只读的镜像层外挂载一层可读写层
+4.从宿主主机配置的网桥接口中桥接一个虚拟接口到容器中
+5.从地址池配置一个IP地址给容器
+6.执行用户指定的应用程序
+7.执行完毕后容器被终止
+
+10.启动已终止容器
+docker container start
+docker start
+
+11.后台运行容器
+docker run -d ubuntu:16.04 
+只会打印容器id(输出结果可以用docker logs 查看)
+
+12.停止运行的容器
+docker container stop
+
+13.查看终止状态的容器
+docker container ls -a
+
+14.重新启动处于终止状态的容器
+docker container start
+
+15.重启运行中的容器
+docker container restart
+
+16.查看所有镜像
+docker ps -a
+
+17.进入容器
+docker exec -it 容器ID /bin/bash
+
+18.导出本地容器
+docker export 容器ID > 导出文件名.tar
+
+19.导入容器
+cat 导出文件名.tar | docker import - 用户名/镜像名:版本号
+
+20.删除处于终止状态下的容器
+docker container rm ubuntu:16.04
+
+21.删除运行中的容器
+docker container rm -f ubuntu:16.04
+
+22.清理所有处理终止状态的容器
+docker container prune
+
 
