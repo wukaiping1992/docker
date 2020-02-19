@@ -33,3 +33,101 @@ COPY hom?.txt /mydir/
 docker run --name mynginx2 -p 80:80 mynginx:2.0
 进入运行中的容器
 docker exec -it mynginx2 /bin/bash
+
+CMD容器启动命令
+CMD指令格式和RUN相似，也是两种格式：
+CMD <命令>
+CMD ["可执行文件","参数1","参数2"]
+参数列表格式：CMD["参数1","参数2"...]。在指定了ENTRYPOINT指令后，用CMD指定具体的参数。
+Docker不是虚拟机，容器就是进程。既然是进程，那么在启动容器的时候，需要指定所运行的程序及参数。CMD指令就是用于指定默认的容器主进程启动命令的
+
+ENTRYPOINT入口点
+ENTRYPOINT的目的和CMD一样，都是在指定容器启动程序及参数。ENTRYPOINT在运行时也可以替代。不过比CMD要繁琐，需要通过Docker run 的参数 --entrypoint来指定
+当指定了ENTRYPONT后，CMD的含义就发生了改变，不再是直接的运行其命令，而是将CMD的内容作为参数传给ENTRYPOINT指令，换句话实际执行时，将变为：
+<ENTRYPOINT> "<CMD>"
+
+ENV设置环境变量
+格式有两种：
+ENV <key><value>
+ENV <key1>=<value1> <key2>=<value2>...
+这个指令很简单，就是设置环境变量而已，无论是后面的其他指令，如RUN，还是运行时的应用，都可以直接使用这里定义的环境变量
+ENV VERSION=1.0 DEBUG=ON
+$VERSION #使用环境变量
+下列指令可以支持环境变量展开：ADD、COPY、ENV、EXPOSE、LABEL、USER、WORKDIR、VOLUME、STOPSIGNAL、ONBUILD
+
+ARG构建参数
+ARG <参数名>[=<默认值>]
+构建参数和ENV的效果一样，都是设置环境变量。所不同的是，ARG所设置的构建环境的环境变量，在将来容器运行时是不会存在这些环境变量的。但是
+不要因此就使用ARG保存密码之类的信息。因为docker history还是可以看见所有值的。
+Dockerfile中的ARG指令是定义参数名称，以及定义其默认值。该默认值可以在构建命令 docker build 中用--build -arg<参数名>=<值>来覆盖。
+
+VOLUME定义匿名卷
+VOLUME ["<路径1>","路径2"...]
+VOLUME <路径>
+容器运行时应该尽量保持容器存储层不发生读写操作，对于数据库类需要保存动态数据的应用，其数据库文件应该保存在卷volume中，为了防止运行时用户
+忘记将动态文件所保存目录挂载为卷，在Dockerfile中，可以事先指定某些目录挂载为匿名卷，这样在运行时如用户不指定挂载，其应用也可以正常运行。
+不会向容器存储层写入大量文件
+VOLUME /data
+这里的/data 目录就会在运行时自动挂载为匿名卷，任何向/data中写入的信息都不会记录进容器存储层，从而保证了容器存储层的无状态化，运行时可
+覆盖这个挂载设置
+docker run -d -v mydata:/data xxx
+这行命令，就使用了mydata这个命名卷挂载到了/data这个位置，替代了Dockerfile中定义的匿名卷的挂载配置
+
+EXPOSE声明端口
+格式为EXPOSE <端口1> [<端口2>...]
+EXPOSE指令是声明运行时容器提供的服务端口，只是声明，在运行时并不会因为声明应用就会去开启这个端口的服务。
+在Dockerfile中写入这样的声明有两个好处：
+1.帮助镜像使用者理解这个镜像服务的守护端口，以方便配置映射；
+2.在运行时使随机端口映射时，也就是docker run -P 时，会自动随机映射EXPOSE的端口。
+
+WORKDIR 指定工作目录
+格式为WORKDIR<工作目录路径>
+使用WORKDIR指令可以来指定工作目录(当前目录)，以后各层的当前目录就被改为指定目录，如该目录不存在。则WORKDIR会帮你建立目录
+
+每一个RUN都是启动一个容器、执行命令、然后提交存储层文件变更。
+需要改变以后各层的工作目录的位置 那么应该使用WORKDIR指令
+
+USER 指定当前用户
+改变环境状态并影响以后的层，USER是改变之后层的执行RUN、CMD以及ENTRYPOINT这类命令的身份
+用户必须事先建立好。
+
+HEALTHCHECK 健康检查
+HEALTHCHECK [选项] CMD <命令>：设置检查容器健康状况的命令
+HEALTHCHECK NONE: 屏蔽已经存在的健康指令
+一个镜像指定了 HEALTHCHECK指令后，用其启动容器，初始状态为starting，在执行健康检查成功后变为healthy，如果一定次数失败
+则变为unhealthy。
+HEALTHCHECK支持下列选项：
+--interval=<间隔>：两次健康检查的间隔
+--timeout=<时长>:检查超时时间
+--retries=<次数>：连续失败次数 视为unhealthy 默认3次
+可以使用docker inspect 查看 健康检查日志
+
+ONBUILD <其他指令>
+当以当前镜像为基础镜像时 执行的指令
+
+其他制作镜像方式
+docker save 和 docker load
+用以将镜像保存为一个tar文件，然后传输到另一个位置上，再加载进来。
+保存镜像
+docker save nginx|gzip > nginx-latest.tar.gz
+将该gz文件复制到另一个机器上，再次加载镜像：
+docker load -i nginx-latest.tar.gz
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
