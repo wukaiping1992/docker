@@ -30,6 +30,7 @@ sudo yum remove docker-ce
 
 8.删除docker镜像
 sudo rm -rf /var/lib/docker
+删除所有停止的容器 docker rm $(docker ps -a -q)
 
 9.镜像加速器
 在/etc/docker/deamon.json中写入如下配置
