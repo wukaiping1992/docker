@@ -84,4 +84,12 @@ docker container rm -f ubuntu:16.04
 22.清理所有处理终止状态的容器
 docker container prune
 
+23.过滤docker image ls 的输出内容
+docker image ls --filter dangling=true 输出所有的悬虚镜像
+docker image ls --filter=reference="*:latest" 所有标签为 latest 的镜像
+docker image ls --format "{{.Szie}:{{.Tag}}}" 根据格式展示镜像信息
+
+24 搜索Docker Hub
+docker search 镜像名称 --filter "is-official=true"
+
 
